@@ -281,6 +281,44 @@ def main(page: ft.Page):
         ),
     )
 
+    aggregation_result = ft.TextField(
+        label="Результат агрегации",
+        width=400,
+        read_only= True,
+        text_style=ft.TextStyle(color=ft.colors.YELLOW),
+        border = ft.InputBorder.OUTLINE,
+        border_color=ft.colors.BLUE,
+        focused_border_color=ft.colors.YELLOW,
+        border_width= 2,
+        border_radius=10
+    )
+
+    # Кнопки
+    total_button = ft.ElevatedButton(
+        text = "Сумма",
+        width=150,
+        style = ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
+    )
+
+    average_button = ft.ElevatedButton(
+        text = "Среднее",
+        width=150,
+        style = ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
+    )
+
+    max_button = ft.ElevatedButton(
+        text = "Максимальное",
+        width=150,
+        style = ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7))
+    )
+
+    min_button = ft.ElevatedButton(
+        text = "Минимальное",
+        width=150,
+        style = ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7))
+    )
+
+
 
     # Содержимое первой вкладки
     app_content = ft.Column(
@@ -435,6 +473,26 @@ def main(page: ft.Page):
         expand=True
     )
 
+    # Содержимое вкладки "Агрегация данных"
+    aggregation_content = ft.Column(
+        [
+            aggregation_result,
+            ft.Row(
+                [total_button, average_button],
+                alignment=ft.MainAxisAlignment.CENTER,
+            ),
+            ft.Row(
+                [max_button, min_button],
+                alignment=ft.MainAxisAlignment.CENTER,
+            )
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        spacing=20,
+        expand=True
+    )
+
+
     tabs = ft.Tabs(
         selected_index=0,
         animation_duration=300,
@@ -442,6 +500,7 @@ def main(page: ft.Page):
             ft.Tab(text="Заказы", content=app_content),
             ft.Tab(text="Экспортировать", content=export_content),
             ft.Tab(text="Поиск", content=search_content),
+            ft.Tab(text="Агрегация данных", content=aggregation_content),
         ],
         expand=True,
     )
