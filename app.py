@@ -99,11 +99,11 @@ def main(page: ft.Page):
     #Установка цвета статуса работы для выпадающего списка
     def update_work_status_color(e):
         if work_status_dropdown.value == "В работе":
-            work_status_dropdown.text_style.color = ft.TextStyle(color=ft.colors.ORANGE)
+            work_status_dropdown.text_style = ft.TextStyle(color=ft.colors.ORANGE)
         elif work_status_dropdown.value == "Выполнено":
-            work_status_dropdown.text_style.color = ft.TextStyle(color=ft.colors.GREEN)
+            work_status_dropdown.text_style = ft.TextStyle(color=ft.colors.GREEN)
         elif work_status_dropdown.value == "Отменено":
-            work_status_dropdown.text_style.color = ft.TextStyle(color=ft.colors.RED)            
+            work_status_dropdown.text_style = ft.TextStyle(color=ft.colors.RED)            
         page.update()
 
     # Выпадающий список
@@ -123,11 +123,11 @@ def main(page: ft.Page):
     #Установка цвета статуса оплаты для выпадающего списка
     def update_payment_status_color(e):
         if payment_status_dropdown.value == "Оплачено":
-            payment_status_dropdown.text_style.color = ft.TextStyle(color=ft.colors.GREEN)
+            payment_status_dropdown.text_style = ft.TextStyle(color=ft.colors.GREEN)
         elif payment_status_dropdown.value == "Не оплачено":
-            payment_status_dropdown.text_style.color = ft.TextStyle(color=ft.colors.RED)
+            payment_status_dropdown.text_style = ft.TextStyle(color=ft.colors.RED)
         elif payment_status_dropdown.value == "Долг":
-            payment_status_dropdown.text_style.color = ft.TextStyle(color=ft.colors.ORANGE)            
+            payment_status_dropdown.text_style = ft.TextStyle(color=ft.colors.ORANGE)            
         page.update()
  
     # Выпадающий список - статус оплаты
@@ -242,6 +242,7 @@ def main(page: ft.Page):
     # Кнопка для добавления данных
     add_button = ft.ElevatedButton(
         text="Добавить",
+        on_click=add_order,
         width=200,
         height=50,
         style = ft.ButtonStyle(
