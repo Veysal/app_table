@@ -50,6 +50,55 @@ def export_to_csv():
     except Exception as ex:
         print(f"Ошибка при экспорте в CSV: {ex}")
         return None
+    
+
+# Агрегирующие функции
+def get_total_payment():
+    """Получаем общую сумму всех оплат клиентов"""
+    conn = sqlite3.connect("work_tracker.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT SUM(payment_amount) FROM orders")
+    total = cursor.fetchone()[0] or 0
+    conn.close()
+    return total
+
+def get_average_payment():
+    """Получаем среднюю сумму всех оплат клиентов"""
+    conn = sqlite3.connect("work_tracker.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT AVG(payment_amount) FROM orders")
+    average = cursor.fetchone()[0] or 0
+    conn.close()
+    return average
+
+def get_max_payment():
+    """Получаем максимальную сумму оплаты клиента"""
+    conn = sqlite3.connect("work_tracker.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT MAX(payment_amount) FROM orders")
+    max_payment = cursor.fetchone()[0] or 0
+    if max_payment is None:
+        return []
+    cursor.execute("SELECT client_name FROM orders WHERE payment_amount = ?", (max_payment,))
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
+
+def get_min_payment():
+    """Получаем минимальную сумму оплаты клиента"""
+    conn = sqlite3.connect("work_tracker.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT MIN(payment_amount) FROM orders")
+    min_payment = cursor.fetchone()[0] or 0
+    if min_payment is None:
+        return []
+    cursor.execute("SELECT client_name FROM orders WHERE payment_amount = ?", (min_payment,))
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
+
+
+
 
 # Функция для поиска по имени клиента
 def search_orders_by_client_name(client_name):
@@ -281,6 +330,7 @@ def main(page: ft.Page):
         ),
     )
 
+    # Результат агрегации
     aggregation_result = ft.TextField(
         label="Результат агрегации",
         width=400,
@@ -292,6 +342,11 @@ def main(page: ft.Page):
         border_width= 2,
         border_radius=10
     )
+
+    # Функции для кнопок агрегации
+    def total_handler(e):
+        pass
+
 
     # Кнопки
     total_button = ft.ElevatedButton(
