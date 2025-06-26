@@ -79,7 +79,7 @@ def main(page: ft.Page):
         ],
         value = "В работе",
         on_change=update_work_status_color,
-        text_style=ft.TextStyle(color=ft.colors.YELLOW),
+        text_style=ft.TextStyle(color=ft.colors.ORANGE),
     )
 
     #Установка цвета статуса оплаты для выпадающего списка
@@ -91,7 +91,6 @@ def main(page: ft.Page):
         elif payment_status_dropdown.value == "Долг":
             payment_status_dropdown.text_style.color = ft.TextStyle(color=ft.colors.ORANGE)            
         page.update()
-
  
     # Выпадающий список - статус оплаты
     payment_status_dropdown = ft.Dropdown(
@@ -103,8 +102,8 @@ def main(page: ft.Page):
             ft.dropdown.Option("Долг"),
         ],
         value = "Не оплачено",
+        on_change=update_payment_status_color,
         text_style=ft.TextStyle(color=ft.colors.RED),
-        on_change=update_payment_status_color
     )
 
     payment_amount_input = ft.TextField(
@@ -120,6 +119,18 @@ def main(page: ft.Page):
     )
 
 
+    # Кнопка для добавления данных
+    add_button = ft.ElevatedButton(
+        text="Добавить",
+        width=200,
+        height=50,
+        style = ft.ButtonStyle(
+            color=ft.colors.WHITE,
+            bgcolor=ft.colors.BLUE,
+            shape=ft.RoundedRectangleBorder(radius=7)
+        ),
+    )
+
 
     # Содержимое первой вкладки
     app_content = ft.Column(
@@ -129,9 +140,19 @@ def main(page: ft.Page):
                     order_id_input,
                     order_date_input,
                     client_name_input,
+                    payment_amount_input
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
-            )
+            ),
+            ft.Row(
+                [
+                    work_status_dropdown,
+                    payment_status_dropdown,
+                    add_button
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+            ),
+            ft.Column([data_table], scroll=ft.ScrollMode.ALWAYS)
         ],
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER
