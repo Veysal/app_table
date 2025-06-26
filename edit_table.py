@@ -72,6 +72,7 @@ def create_edit_tab(page):
         weight=ft.FontWeight.BOLD
     )
 
+    # Выпадающий список для редактирования статуса оплаты
     edit_payment_status_dropdown = ft.Dropdown(
         label="Новый статус оплаты",
         hint_text="Выберите новый статус оплаты",

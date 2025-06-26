@@ -331,14 +331,17 @@ def main(page: ft.Page):
     # Результат агрегации
     aggregation_result = ft.TextField(
         label="Результат агрегации",
-        width=400,
-        read_only= True,
+        width=550,
+        read_only=True,
+        multiline=True,
+        min_lines=2,
+        max_lines=5,
         text_style=ft.TextStyle(color=ft.colors.YELLOW),
-        border = ft.InputBorder.OUTLINE,
+        border=ft.InputBorder.OUTLINE,
         border_color=ft.colors.BLUE,
         focused_border_color=ft.colors.YELLOW,
-        border_width= 2,
-        border_radius=10
+        border_width=2,
+        border_radius=10,
     )
 
     # Функции для кнопок агрегации
@@ -357,10 +360,10 @@ def main(page: ft.Page):
         if not max_payment:
             aggregation_result.value = "Нет данных"
         else:
-            result = ""
+            result_lines = []
             for row in max_payment:
-                result += f"Клиент: {row[3]}, Сумма: {row[6]:.2f} руб."
-            aggregation_result.value = result.strip()
+                result_lines.append(f"Клиент: {row[3]}\nСумма: {row[6]:.2f} руб.")
+            aggregation_result.value = "\n\n".join(result_lines)
         page.update()
 
     def min_handler(e):
@@ -368,10 +371,10 @@ def main(page: ft.Page):
         if not min_payment:
             aggregation_result.value = "Нет данных"
         else:
-            result = ""
+            result_lines = []
             for row in min_payment:
-                result += f"Клиент: {row[3]}, Сумма: {row[6]:.2f} руб."
-            aggregation_result.value = result.strip()
+                result_lines.append(f"Клиент: {row[3]}\nСумма: {row[6]:.2f} руб.")
+            aggregation_result.value = "\n\n".join(result_lines)
         page.update()
 
     
@@ -495,6 +498,7 @@ def main(page: ft.Page):
     # Содержмое третье вкладки
     search_input = ft.TextField(
         label="Поиск",
+        hint_text="Введите имя клиента",
         width=400,
         text_style=ft.TextStyle(color=ft.colors.YELLOW),
         border = ft.InputBorder.OUTLINE,
