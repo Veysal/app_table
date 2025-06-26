@@ -179,14 +179,14 @@ def main(page: ft.Page):
     # Функция для обработки нажатия кнопки "Добавить"
     def add_order(e):
         order_id = order_id_input.value.strip()
-        order_date = order_date_input.value.strip
+        order_date = order_date_input.value.strip()
         client_name = client_name_input.value.strip()
         work_status = work_status_dropdown.value
         payment_status = payment_status_dropdown.value
         payment_amount = payment_amount_input.value.strip()
 
         # Проверка заполнения всех полей
-        if not all(order_id, order_date, client_name, work_status, payment_status, payment_amount):
+        if not all([order_id, order_date, client_name, work_status, payment_status, payment_amount]):
             page.snack_bar = ft.SnackBar(
                 content=ft.Text("Заполните все поля", color=ft.colors.WHITE),
                 bgcolor=ft.colors.RED,
