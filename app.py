@@ -51,6 +51,15 @@ def export_to_csv():
         print(f"Ошибка при экспорте в CSV: {ex}")
         return None
 
+# Функция для поиска по имени клиента
+def search_orders_by_client_name(client_name):
+    conn = sqlite3.connect("work_tracker.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM orders WHERE client_name LIKE ?", (client_name,))
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
+
 
 
 
@@ -369,13 +378,70 @@ def main(page: ft.Page):
         border_radius=10
     )
 
+    search_results_table = ft.DataTable(
+        columns=[
+            ft.DataColumn(ft.Text("ID заказа", color=ft.colors.YELLOW,size=18.5)),
+            ft.DataColumn(ft.Text("Дата заказа", color=ft.colors.YELLOW,size=18.5)),
+            ft.DataColumn(ft.Text("Имя клиента", color=ft.colors.YELLOW,size=18.5)),
+            ft.DataColumn(ft.Text("Статус работы", color=ft.colors.YELLOW,size=18.5)),
+            ft.DataColumn(ft.Text("Статус оплаты", color=ft.colors.YELLOW,size=18.5)),
+            ft.DataColumn(ft.Text("Сумма оплаты", color=ft.colors.YELLOW,size=18.5)),
+        ],
+        rows=[]
+    )
+
+    # Функция поиска
+    def handle_search(e):
+        client_name = search_input.value.strip()
+        if not client_name:
+            page.snack_bar = ft.SnackBar(ft.Text("Поле поиска не может быть пустым", color=ft.colors.WHITE), bgcolor=ft.colors.RED,duration=2000)
+            page.snack_bar.open = True
+            page.update()
+            return
+        
+        results = search_orders_by_client_name(client_name)
+        search_results_table.rows.clear()
+        for row in results:
+            search_results_table.rows.append(
+                ft.DataRow(
+                    cells=[
+                        ft.DataCell(ft.Text(row[1], color=ft.colors.BLUE, size=20)), #order_id
+                        ft.DataCell(ft.Text(row[2], color=ft.colors.BLUE, size=20)), #order_date
+                        ft.DataCell(ft.Text(row[3], color=ft.colors.BLUE, size=20)), #client_name
+                        ft.DataCell(ft.Text(row[4], color=ft.colors.BLUE, size=20)), #work_status
+                        ft.DataCell(ft.Text(row[5], color=ft.colors.BLUE, size=20)), #payment_status
+                        ft.DataCell(ft.Text(f"{row[6]:.2f}", color=ft.colors.BLUE, size=20)) #payment_amount
+                    ]
+                )
+            )
+        page.update()
+    
+    search_button = ft.ElevatedButton(
+        content=ft.Text("Поиск", size=20, color=ft.colors.WHITE),
+        on_click=handle_search,
+        width=200,
+        style=ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
+    )
+
+    search_content = ft.Column(
+        [
+            search_input,
+            search_button,
+            ft.Column([search_results_table], scroll=ft.ScrollMode.ALWAYS)
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        spacing=20,
+        expand=True
+    )
+
     tabs = ft.Tabs(
         selected_index=0,
         animation_duration=300,
         tabs=[
             ft.Tab(text="Заказы", content=app_content),
             ft.Tab(text="Экспортировать", content=export_content),
-            ft.Tab(text="Поиск"),
+            ft.Tab(text="Поиск", content=search_content),
         ],
         expand=True,
     )
