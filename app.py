@@ -79,7 +79,7 @@ def get_max_payment():
     max_payment = cursor.fetchone()[0] or 0
     if max_payment is None:
         return []
-    cursor.execute("SELECT client_name FROM orders WHERE payment_amount = ?", (max_payment,))
+    cursor.execute("SELECT * FROM orders WHERE payment_amount = ?", (max_payment,))
     rows = cursor.fetchall()
     conn.close()
     return rows
@@ -92,7 +92,7 @@ def get_min_payment():
     min_payment = cursor.fetchone()[0] or 0
     if min_payment is None:
         return []
-    cursor.execute("SELECT client_name FROM orders WHERE payment_amount = ?", (min_payment,))
+    cursor.execute("SELECT * FROM orders WHERE payment_amount = ?", (min_payment,))
     rows = cursor.fetchall()
     conn.close()
     return rows
