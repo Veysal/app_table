@@ -357,12 +357,25 @@ def main(page: ft.Page):
         expand=True
     )
 
+    # Содержмое третье вкладки
+    search_input = ft.TextField(
+        label="Поиск",
+        width=400,
+        text_style=ft.TextStyle(color=ft.colors.YELLOW),
+        border = ft.InputBorder.OUTLINE,
+        border_color=ft.colors.BLUE,
+        focused_border_color=ft.colors.YELLOW,
+        border_width= 2,
+        border_radius=10
+    )
+
     tabs = ft.Tabs(
         selected_index=0,
         animation_duration=300,
         tabs=[
             ft.Tab(text="Заказы", content=app_content),
-            ft.Tab(text="Экспортировать", content=export_content)
+            ft.Tab(text="Экспортировать", content=export_content),
+            ft.Tab(text="Поиск"),
         ],
         expand=True,
     )
