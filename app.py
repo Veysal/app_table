@@ -1,6 +1,7 @@
 import flet as ft
 import sqlite3
 import os
+import csv
 
 # Инициализация базы данных SQLite3
 def init_db():
@@ -31,6 +32,25 @@ def add_order_to_db(order_id, order_date, client_name, work_status, payment_stat
 """,(order_id, order_date, client_name, work_status, payment_status, payment_amount))
     conn.commit()
     conn.close()
+
+def export_to_csv():
+    try:
+        conn = sqlite3.connect("work_tracker.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM orders")
+        rows = cursor.fetchall()
+        headers = ["ID заказа", "Дата заказа", "Имя клиента", "Статус работы", "Статус оплаты", "Сумма оплаты"]
+        file_path =("orders.csv")
+        with open(file_path, "w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
+            writer.writerow(headers)
+            writer.writerows(rows)
+        conn.close()
+        return file_path
+    except Exception as ex:
+        print(f"Ошибка при экспорте в CSV: {ex}")
+        return None
+
 
 
 
@@ -279,12 +299,70 @@ def main(page: ft.Page):
         horizontal_alignment=ft.CrossAxisAlignment.CENTER
     )
 
+    # Содержимое второй вкладки
+    def handler_export(e):
+        try:
+            file_path = export_to_csv()
+            if file_path:
+                page.set_clipboard(file_path)
+                page.launch_url(f"file://{os.path.abspath(file_path)}")
+                page.snack_bar = ft.SnackBar(
+                    ft.Text("CSV файл успешно создан и доступен для скачивания", color=ft.colors.WHITE),
+                    bgcolor=ft.colors.GREEN,
+                    duration=2000,
+                )
+            else:
+                page.snack_bar= ft.SnackBar(
+                    ft.Text("Ошибка при экспорте в CSV", color=ft.colors.WHITE),
+                    bgcolor=ft.colors.RED,
+                    duration=2000,
+                )
+        except Exception as ex:
+            page.snack_bar = ft.SnackBar(
+                ft.Text(f"Ошибка при экспорте в CSV: {ex}", color=ft.colors.WHITE),
+                bgcolor=ft.colors.RED,
+                duration=2000,
+            )
+        page.snack_bar.open = True
+        page.update()
+   
+
+    export_text = ft.Text(
+        "Нажмите на кнопку, чтобы экспортировать в CSV файл",
+        color=ft.colors.YELLOW,
+        size=20,
+        weight=ft.FontWeight.BOLD,
+        text_align=ft.TextAlign.CENTER
+    )
+
+    export_button = ft.ElevatedButton(
+        content=ft.Text("Экспортировать", size=20, color=ft.colors.WHITE),
+        on_click=handler_export,
+        width=400,
+        height=50,
+        style = ft.ButtonStyle(
+            bgcolor=ft.colors.BLUE,
+            shape=ft.RoundedRectangleBorder(radius=7),
+        ),
+    )
+
+    export_content = ft.Column(
+        [
+            export_text,
+            export_button
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        spacing=30,
+        expand=True
+    )
+
     tabs = ft.Tabs(
         selected_index=0,
         animation_duration=300,
         tabs=[
             ft.Tab(text="Заказы", content=app_content),
-            ft.Tab(text="Экспортировать")
+            ft.Tab(text="Экспортировать", content=export_content)
         ],
         expand=True,
     )
