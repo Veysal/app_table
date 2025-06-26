@@ -98,8 +98,6 @@ def get_min_payment():
     return rows
 
 
-
-
 # Функция для поиска по имени клиента
 def search_orders_by_client_name(client_name):
     conn = sqlite3.connect("work_tracker.db")
@@ -345,30 +343,65 @@ def main(page: ft.Page):
 
     # Функции для кнопок агрегации
     def total_handler(e):
-        pass
+        total = get_total_payment()
+        aggregation_result.value = f"Общая сумма оплаты: {total:.2f} руб."
+        page.update()
+
+    def average_handler(e):
+        average = get_average_payment()
+        aggregation_result.value = f"Средняя сумма оплаты: {average:.2f} руб."
+        page.update()
+
+    def max_handler(e):
+        max_payment = get_max_payment()
+        if not max_payment:
+            aggregation_result.value = "Нет данных"
+        else:
+            result = ""
+            for row in max_payment:
+                result += f"Клиент: {row[3]}, Сумма: {row[6]:.2f} руб."
+            aggregation_result.value = result.strip()
+        page.update()
+
+    def min_handler(e):
+        min_payment = get_min_payment()
+        if not min_payment:
+            aggregation_result.value = "Нет данных"
+        else:
+            result = ""
+            for row in min_payment:
+                result += f"Клиент: {row[3]}, Сумма: {row[6]:.2f} руб."
+            aggregation_result.value = result.strip()
+        page.update()
+
+    
 
 
     # Кнопки
     total_button = ft.ElevatedButton(
         text = "Сумма",
+        on_click=total_handler,
         width=150,
         style = ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
     )
 
     average_button = ft.ElevatedButton(
         text = "Среднее",
+        on_click=average_handler,
         width=150,
         style = ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
     )
 
     max_button = ft.ElevatedButton(
         text = "Максимальное",
+        on_click=max_handler,
         width=150,
         style = ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7))
     )
 
     min_button = ft.ElevatedButton(
         text = "Минимальное",
+        on_click=min_handler,
         width=150,
         style = ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7))
     )
