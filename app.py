@@ -21,6 +21,19 @@ def init_db():
     conn.commit()
     conn.close()
 
+# Функциф для добавления данных в базу данных
+def add_order_to_db(order_id, order_date, client_name, work_status, payment_status, payment_amount):
+    conn = sqlite3.connect("work_tracker.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO orders (order_id, order_date, client_name, work_status, payment_status, payment_amount)
+        VALUES (?, ?, ?, ?, ?, ?)
+""",(order_id, order_date, client_name, work_status, payment_status, payment_amount))
+    conn.commit()
+    conn.close()
+
+
+
 
 # Основное приложение
 def main(page: ft.Page):
@@ -28,6 +41,9 @@ def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.bgcolor = ft.colors.BLACK
+
+    # Инициализация базы данных
+    init_db()
 
     #Создание таблицы для отображения данных
     data_table = ft.DataTable(
@@ -140,6 +156,88 @@ def main(page: ft.Page):
         border_radius=10
     )
 
+    # Функция для обработки нажатия кнопки "Добавить"
+    def add_order(e):
+        order_id = order_id_input.value.strip()
+        order_date = order_date_input.value.strip
+        client_name = client_name_input.value.strip()
+        work_status = work_status_dropdown.value
+        payment_status = payment_status_dropdown.value
+        payment_amount = payment_amount_input.value.strip()
+
+        # Проверка заполнения всех полей
+        if not all(order_id, order_date, client_name, work_status, payment_status, payment_amount):
+            page.snack_bar = ft.SnackBar(
+                content=ft.Text("Заполните все поля", color=ft.colors.WHITE),
+                bgcolor=ft.colors.RED,
+                duration=2000,
+            )
+            page.snack_bar.open = True
+            page.update()
+            return
+        
+        # Проверка формата ID заказа
+        if not order_id.isdigit():
+            page.snack_bar = ft.SnackBar(
+                content=ft.Text("ID заказа должно быть числом", color=ft.colors.WHITE),
+                bgcolor=ft.colors.RED,
+                duration=2000,
+            )
+            page.snack_bar.open = True
+            page.update()
+            return
+        
+        # Проверка формата даты
+        try:
+            day, month, year = map(int, order_date.split("."))
+            if not (1 <= month <= 12 and 1 <= day <= 31):
+                raise ValueError
+        except ValueError:
+            page.snack_bar = ft.SnackBar(
+                content=ft.Text("Дата должна быть в формате День.Месяц.Год", color=ft.colors.WHITE),
+                bgcolor=ft.colors.RED,
+                duration=2000,
+            )
+            page.snack_bar.open = True
+            page.update()
+            return
+        
+        # Проверка формата суммы оплаты
+        try:
+            payment_amount = float(payment_amount)
+        except ValueError:
+            page.snack_bar = ft.SnackBar(
+                content=ft.Text("Сумма оплаты должна быть числом", color=ft.colors.WHITE),
+                bgcolor=ft.colors.RED,
+                duration=2000,
+                )
+            page.snack_bar.open = True
+            page.update()
+            return
+        
+        # Добавление данных в базу данных
+        add_order_to_db(order_id, order_date, client_name, work_status, payment_status, payment_amount)
+
+        # Обновление таблицы
+        data_table.rows.append(
+            ft.DataRow(
+                cells=[
+                    ft.DataCell(ft.Text(order_id, color=ft.colors.YELLOW)),
+                    ft.DataCell(ft.Text(order_date, color=ft.colors.YELLOW)),
+                    ft.DataCell(ft.Text(client_name, color=ft.colors.YELLOW)),
+                    ft.DataCell(ft.Text(work_status, color=ft.colors.YELLOW)),
+                    ft.DataCell(ft.Text(payment_status, color=ft.colors.YELLOW)),
+                    ft.DataCell(ft.Text(f"{payment_amount:.2f}", color=ft.colors.YELLOW))
+                ]
+            )
+        )
+        page.update()
+        order_id_input.value = ""
+        order_date_input.value = ""
+        client_name_input.value = ""
+        work_status_dropdown.value = "В работе"
+        payment_status_dropdown.value = "Не оплачено"
+        payment_amount_input.value = ""
 
     # Кнопка для добавления данных
     add_button = ft.ElevatedButton(
