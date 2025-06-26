@@ -1,4 +1,26 @@
 import flet as ft
+import sqlite3
+import os
+
+# Инициализация базы данных SQLite3
+def init_db():
+    conn = sqlite3.connect("work_tracker.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id INEGER NOT NULL,
+            order_date TEXT NOT NULL,
+            client_name TEXT NOT NULL,
+            work_status TEXT NOT NULL,
+            payment_status TEXT NOT NULL,
+            payment_amount REAL
+        )
+    """
+    )
+    conn.commit()
+    conn.close()
+
 
 # Основное приложение
 def main(page: ft.Page):
@@ -162,7 +184,8 @@ def main(page: ft.Page):
         selected_index=0,
         animation_duration=300,
         tabs=[
-            ft.Tab(text="Заказы", content=app_content)
+            ft.Tab(text="Заказы", content=app_content),
+            ft.Tab(text="Экспортировать")
         ],
         expand=True,
     )
