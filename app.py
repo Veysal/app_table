@@ -2,6 +2,8 @@ import flet as ft
 import sqlite3
 import os
 import csv
+from edit_table import create_edit_tab
+
 
 # Инициализация базы данных SQLite3
 def init_db():
@@ -593,6 +595,7 @@ def main(page: ft.Page):
             ft.Tab(text="Экспортировать", content=export_content),
             ft.Tab(text="Поиск", content=search_content),
             ft.Tab(text="Агрегация данных", content=aggregation_content),
+            ft.Tab(text="Редактирование", content=create_edit_tab(page)),
         ],
         expand=True,
     )
