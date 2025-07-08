@@ -1,26 +1,7 @@
-import sqlite3
 import flet as ft
 from datetime import datetime
+from database import update_order_in_db, get_order_by_id
 
-# Функция для обновления данных в БД
-def update_order_in_db(order_id, new_date,new_payment_status):
-    with sqlite3.connect('work_tracker.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE orders
-            SET order_date = ?, payment_status = ?
-            WHERE order_id = ?
-        """, (new_date,new_payment_status, order_id))
-        conn.commit()
-
-# Функция для поиска заказа по ID
-def get_order_by_id(order_id):
-    with sqlite3.connect('work_tracker.db') as conn:
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        cursor.execute("""SELECT * FROM orders WHERE order_id = ?""", (order_id,))
-        order = cursor.fetchone()
-        return order
 
 # Функция для создания вкладки Редактирования
 def create_edit_tab(page):
