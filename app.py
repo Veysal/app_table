@@ -118,7 +118,7 @@ def main(page: ft.Page):
     page.title = "User table"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.bgcolor = ft.colors.BLACK
+    page.bgcolor = ft.Colors.BLACK
 
     # Инициализация базы данных
     init_db()
@@ -126,12 +126,12 @@ def main(page: ft.Page):
     #Создание таблицы для отображения данных
     data_table = ft.DataTable(
         columns=[
-            ft.DataColumn(ft.Text("ID заказа", color=ft.colors.YELLOW)),
-            ft.DataColumn(ft.Text("Дата заказа", color=ft.colors.YELLOW)),
-            ft.DataColumn(ft.Text("Имя клиента", color=ft.colors.YELLOW)),
-            ft.DataColumn(ft.Text("Статус работы", color=ft.colors.YELLOW)),
-            ft.DataColumn(ft.Text("Статус оплаты", color=ft.colors.YELLOW)),
-            ft.DataColumn(ft.Text("Сумма оплаты", color=ft.colors.YELLOW)),
+            ft.DataColumn(ft.Text("ID заказа", color=ft.Colors.YELLOW)),
+            ft.DataColumn(ft.Text("Дата заказа", color=ft.Colors.YELLOW)),
+            ft.DataColumn(ft.Text("Имя клиента", color=ft.Colors.YELLOW)),
+            ft.DataColumn(ft.Text("Статус работы", color=ft.Colors.YELLOW)),
+            ft.DataColumn(ft.Text("Статус оплаты", color=ft.Colors.YELLOW)),
+            ft.DataColumn(ft.Text("Сумма оплаты", color=ft.Colors.YELLOW)),
         ],
         rows=[]
     )
@@ -141,10 +141,10 @@ def main(page: ft.Page):
         label="ID заказа",
         width=200,
         keyboard_type=ft.KeyboardType.NUMBER,
-        text_style=ft.TextStyle(color=ft.colors.YELLOW),
+        text_style=ft.TextStyle(color=ft.Colors.YELLOW),
         border = ft.InputBorder.OUTLINE,
-        border_color=ft.colors.BLUE,
-        focused_border_color=ft.colors.YELLOW,
+        border_color=ft.Colors.BLUE,
+        focused_border_color=ft.Colors.YELLOW,
         border_width= 2,
         border_radius=10
     )
@@ -153,10 +153,10 @@ def main(page: ft.Page):
         label="Дата заказа",
         width=200,
         keyboard_type=ft.KeyboardType.NUMBER,
-        text_style=ft.TextStyle(color=ft.colors.YELLOW),
+        text_style=ft.TextStyle(color=ft.Colors.YELLOW),
         border = ft.InputBorder.OUTLINE,
-        border_color=ft.colors.BLUE,
-        focused_border_color=ft.colors.YELLOW,
+        border_color=ft.Colors.BLUE,
+        focused_border_color=ft.Colors.YELLOW,
         border_width= 2,
         border_radius=10
     ) 
@@ -165,10 +165,10 @@ def main(page: ft.Page):
     client_name_input = ft.TextField(
         label="Имя клиента",
         width=200,
-        text_style=ft.TextStyle(color=ft.colors.YELLOW),
+        text_style=ft.TextStyle(color=ft.Colors.YELLOW),
         border = ft.InputBorder.OUTLINE,
-        border_color=ft.colors.BLUE,
-        focused_border_color=ft.colors.YELLOW,
+        border_color=ft.Colors.BLUE,
+        focused_border_color=ft.Colors.YELLOW,
         border_width= 2,
         border_radius=10
     )
@@ -177,11 +177,11 @@ def main(page: ft.Page):
     #Установка цвета статуса работы для выпадающего списка
     def update_work_status_color(e):
         if work_status_dropdown.value == "В работе":
-            work_status_dropdown.text_style = ft.TextStyle(color=ft.colors.ORANGE)
+            work_status_dropdown.text_style = ft.TextStyle(color=ft.Colors.ORANGE)
         elif work_status_dropdown.value == "Выполнено":
-            work_status_dropdown.text_style = ft.TextStyle(color=ft.colors.GREEN)
+            work_status_dropdown.text_style = ft.TextStyle(color=ft.Colors.GREEN)
         elif work_status_dropdown.value == "Отменено":
-            work_status_dropdown.text_style = ft.TextStyle(color=ft.colors.RED)            
+            work_status_dropdown.text_style = ft.TextStyle(color=ft.Colors.RED)            
         page.update()
 
     # Выпадающий список
@@ -195,17 +195,17 @@ def main(page: ft.Page):
         ],
         value = "В работе",
         on_change=update_work_status_color,
-        text_style=ft.TextStyle(color=ft.colors.ORANGE),
+        text_style=ft.TextStyle(color=ft.Colors.ORANGE),
     )
 
     #Установка цвета статуса оплаты для выпадающего списка
     def update_payment_status_color(e):
         if payment_status_dropdown.value == "Оплачено":
-            payment_status_dropdown.text_style = ft.TextStyle(color=ft.colors.GREEN)
+            payment_status_dropdown.text_style = ft.TextStyle(color=ft.Colors.GREEN)
         elif payment_status_dropdown.value == "Не оплачено":
-            payment_status_dropdown.text_style = ft.TextStyle(color=ft.colors.RED)
+            payment_status_dropdown.text_style = ft.TextStyle(color=ft.Colors.RED)
         elif payment_status_dropdown.value == "Долг":
-            payment_status_dropdown.text_style = ft.TextStyle(color=ft.colors.ORANGE)            
+            payment_status_dropdown.text_style = ft.TextStyle(color=ft.Colors.ORANGE)            
         page.update()
  
     # Выпадающий список - статус оплаты
@@ -219,17 +219,17 @@ def main(page: ft.Page):
         ],
         value = "Не оплачено",
         on_change=update_payment_status_color,
-        text_style=ft.TextStyle(color=ft.colors.RED),
+        text_style=ft.TextStyle(color=ft.Colors.RED),
     )
 
     payment_amount_input = ft.TextField(
         label="Сумма оплаты",
         width=200,
         keyboard_type=ft.KeyboardType.NUMBER,
-        text_style=ft.TextStyle(color=ft.colors.YELLOW),
+        text_style=ft.TextStyle(color=ft.Colors.YELLOW),
         border = ft.InputBorder.OUTLINE,
-        border_color=ft.colors.BLUE,
-        focused_border_color=ft.colors.YELLOW,
+        border_color=ft.Colors.BLUE,
+        focused_border_color=ft.Colors.YELLOW,
         border_width= 2,
         border_radius=10
     )
@@ -246,8 +246,8 @@ def main(page: ft.Page):
         # Проверка заполнения всех полей
         if not all([order_id, order_date, client_name, work_status, payment_status, payment_amount]):
             page.snack_bar = ft.SnackBar(
-                content=ft.Text("Заполните все поля", color=ft.colors.WHITE),
-                bgcolor=ft.colors.RED,
+                content=ft.Text("Заполните все поля", color=ft.Colors.WHITE),
+                bgcolor=ft.Colors.RED,
                 duration=2000,
             )
             page.snack_bar.open = True
@@ -257,8 +257,8 @@ def main(page: ft.Page):
         # Проверка формата ID заказа
         if not order_id.isdigit():
             page.snack_bar = ft.SnackBar(
-                content=ft.Text("ID заказа должно быть числом", color=ft.colors.WHITE),
-                bgcolor=ft.colors.RED,
+                content=ft.Text("ID заказа должно быть числом", color=ft.Colors.WHITE),
+                bgcolor=ft.Colors.RED,
                 duration=2000,
             )
             page.snack_bar.open = True
@@ -272,8 +272,8 @@ def main(page: ft.Page):
                 raise ValueError
         except ValueError:
             page.snack_bar = ft.SnackBar(
-                content=ft.Text("Дата должна быть в формате День.Месяц.Год", color=ft.colors.WHITE),
-                bgcolor=ft.colors.RED,
+                content=ft.Text("Дата должна быть в формате День.Месяц.Год", color=ft.Colors.WHITE),
+                bgcolor=ft.Colors.RED,
                 duration=2000,
             )
             page.snack_bar.open = True
@@ -285,8 +285,8 @@ def main(page: ft.Page):
             payment_amount = float(payment_amount)
         except ValueError:
             page.snack_bar = ft.SnackBar(
-                content=ft.Text("Сумма оплаты должна быть числом", color=ft.colors.WHITE),
-                bgcolor=ft.colors.RED,
+                content=ft.Text("Сумма оплаты должна быть числом", color=ft.Colors.WHITE),
+                bgcolor=ft.Colors.RED,
                 duration=2000,
                 )
             page.snack_bar.open = True
@@ -300,12 +300,12 @@ def main(page: ft.Page):
         data_table.rows.append(
             ft.DataRow(
                 cells=[
-                    ft.DataCell(ft.Text(order_id, color=ft.colors.YELLOW)),
-                    ft.DataCell(ft.Text(order_date, color=ft.colors.YELLOW)),
-                    ft.DataCell(ft.Text(client_name, color=ft.colors.YELLOW)),
-                    ft.DataCell(ft.Text(work_status, color=ft.colors.YELLOW)),
-                    ft.DataCell(ft.Text(payment_status, color=ft.colors.YELLOW)),
-                    ft.DataCell(ft.Text(f"{payment_amount:.2f}", color=ft.colors.YELLOW))
+                    ft.DataCell(ft.Text(order_id, color=ft.Colors.YELLOW)),
+                    ft.DataCell(ft.Text(order_date, color=ft.Colors.YELLOW)),
+                    ft.DataCell(ft.Text(client_name, color=ft.Colors.YELLOW)),
+                    ft.DataCell(ft.Text(work_status, color=ft.Colors.YELLOW)),
+                    ft.DataCell(ft.Text(payment_status, color=ft.Colors.YELLOW)),
+                    ft.DataCell(ft.Text(f"{payment_amount:.2f}", color=ft.Colors.YELLOW))
                 ]
             )
         )
@@ -324,8 +324,8 @@ def main(page: ft.Page):
         width=200,
         height=50,
         style = ft.ButtonStyle(
-            color=ft.colors.WHITE,
-            bgcolor=ft.colors.BLUE,
+            color=ft.Colors.WHITE,
+            bgcolor=ft.Colors.BLUE,
             shape=ft.RoundedRectangleBorder(radius=7)
         ),
     )
@@ -338,10 +338,10 @@ def main(page: ft.Page):
         multiline=True,
         min_lines=2,
         max_lines=5,
-        text_style=ft.TextStyle(color=ft.colors.YELLOW),
+        text_style=ft.TextStyle(color=ft.Colors.YELLOW),
         border=ft.InputBorder.OUTLINE,
-        border_color=ft.colors.BLUE,
-        focused_border_color=ft.colors.YELLOW,
+        border_color=ft.Colors.BLUE,
+        focused_border_color=ft.Colors.YELLOW,
         border_width=2,
         border_radius=10,
     )
@@ -387,28 +387,28 @@ def main(page: ft.Page):
         text = "Сумма",
         on_click=total_handler,
         width=150,
-        style = ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
+        style = ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=ft.Colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
     )
 
     average_button = ft.ElevatedButton(
         text = "Среднее",
         on_click=average_handler,
         width=150,
-        style = ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
+        style = ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=ft.Colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
     )
 
     max_button = ft.ElevatedButton(
         text = "Максимальное",
         on_click=max_handler,
         width=150,
-        style = ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7))
+        style = ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=ft.Colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7))
     )
 
     min_button = ft.ElevatedButton(
         text = "Минимальное",
         on_click=min_handler,
         width=150,
-        style = ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7))
+        style = ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=ft.Colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7))
     )
 
 
@@ -447,20 +447,20 @@ def main(page: ft.Page):
                 page.set_clipboard(file_path)
                 page.launch_url(f"file://{os.path.abspath(file_path)}")
                 page.snack_bar = ft.SnackBar(
-                    ft.Text("CSV файл успешно создан и доступен для скачивания", color=ft.colors.WHITE),
-                    bgcolor=ft.colors.GREEN,
+                    ft.Text("CSV файл успешно создан и доступен для скачивания", color=ft.Colors.WHITE),
+                    bgcolor=ft.Colors.GREEN,
                     duration=2000,
                 )
             else:
                 page.snack_bar= ft.SnackBar(
-                    ft.Text("Ошибка при экспорте в CSV", color=ft.colors.WHITE),
-                    bgcolor=ft.colors.RED,
+                    ft.Text("Ошибка при экспорте в CSV", color=ft.Colors.WHITE),
+                    bgcolor=ft.Colors.RED,
                     duration=2000,
                 )
         except Exception as ex:
             page.snack_bar = ft.SnackBar(
-                ft.Text(f"Ошибка при экспорте в CSV: {ex}", color=ft.colors.WHITE),
-                bgcolor=ft.colors.RED,
+                ft.Text(f"Ошибка при экспорте в CSV: {ex}", color=ft.Colors.WHITE),
+                bgcolor=ft.Colors.RED,
                 duration=2000,
             )
         page.snack_bar.open = True
@@ -469,19 +469,19 @@ def main(page: ft.Page):
 
     export_text = ft.Text(
         "Нажмите на кнопку, чтобы экспортировать в CSV файл",
-        color=ft.colors.YELLOW,
+        color=ft.Colors.YELLOW,
         size=20,
         weight=ft.FontWeight.BOLD,
         text_align=ft.TextAlign.CENTER
     )
 
     export_button = ft.ElevatedButton(
-        content=ft.Text("Экспортировать", size=20, color=ft.colors.WHITE),
+        content=ft.Text("Экспортировать", size=20, color=ft.Colors.WHITE),
         on_click=handler_export,
         width=400,
         height=50,
         style = ft.ButtonStyle(
-            bgcolor=ft.colors.BLUE,
+            bgcolor=ft.Colors.BLUE,
             shape=ft.RoundedRectangleBorder(radius=7),
         ),
     )
@@ -502,22 +502,22 @@ def main(page: ft.Page):
         label="Поиск",
         hint_text="Введите имя клиента",
         width=400,
-        text_style=ft.TextStyle(color=ft.colors.YELLOW),
+        text_style=ft.TextStyle(color=ft.Colors.YELLOW),
         border = ft.InputBorder.OUTLINE,
-        border_color=ft.colors.BLUE,
-        focused_border_color=ft.colors.YELLOW,
+        border_color=ft.Colors.BLUE,
+        focused_border_color=ft.Colors.YELLOW,
         border_width= 2,
         border_radius=10
     )
 
     search_results_table = ft.DataTable(
         columns=[
-            ft.DataColumn(ft.Text("ID заказа", color=ft.colors.YELLOW,size=18.5)),
-            ft.DataColumn(ft.Text("Дата заказа", color=ft.colors.YELLOW,size=18.5)),
-            ft.DataColumn(ft.Text("Имя клиента", color=ft.colors.YELLOW,size=18.5)),
-            ft.DataColumn(ft.Text("Статус работы", color=ft.colors.YELLOW,size=18.5)),
-            ft.DataColumn(ft.Text("Статус оплаты", color=ft.colors.YELLOW,size=18.5)),
-            ft.DataColumn(ft.Text("Сумма оплаты", color=ft.colors.YELLOW,size=18.5)),
+            ft.DataColumn(ft.Text("ID заказа", color=ft.Colors.YELLOW,size=18.5)),
+            ft.DataColumn(ft.Text("Дата заказа", color=ft.Colors.YELLOW,size=18.5)),
+            ft.DataColumn(ft.Text("Имя клиента", color=ft.Colors.YELLOW,size=18.5)),
+            ft.DataColumn(ft.Text("Статус работы", color=ft.Colors.YELLOW,size=18.5)),
+            ft.DataColumn(ft.Text("Статус оплаты", color=ft.Colors.YELLOW,size=18.5)),
+            ft.DataColumn(ft.Text("Сумма оплаты", color=ft.Colors.YELLOW,size=18.5)),
         ],
         rows=[]
     )
@@ -526,7 +526,7 @@ def main(page: ft.Page):
     def handle_search(e):
         client_name = search_input.value.strip()
         if not client_name:
-            page.snack_bar = ft.SnackBar(ft.Text("Поле поиска не может быть пустым", color=ft.colors.WHITE), bgcolor=ft.colors.RED,duration=2000)
+            page.snack_bar = ft.SnackBar(ft.Text("Поле поиска не может быть пустым", color=ft.Colors.WHITE), bgcolor=ft.Colors.RED,duration=2000)
             page.snack_bar.open = True
             page.update()
             return
@@ -537,22 +537,22 @@ def main(page: ft.Page):
             search_results_table.rows.append(
                 ft.DataRow(
                     cells=[
-                        ft.DataCell(ft.Text(row[1], color=ft.colors.BLUE, size=20)), #order_id
-                        ft.DataCell(ft.Text(row[2], color=ft.colors.BLUE, size=20)), #order_date
-                        ft.DataCell(ft.Text(row[3], color=ft.colors.BLUE, size=20)), #client_name
-                        ft.DataCell(ft.Text(row[4], color=ft.colors.BLUE, size=20)), #work_status
-                        ft.DataCell(ft.Text(row[5], color=ft.colors.BLUE, size=20)), #payment_status
-                        ft.DataCell(ft.Text(f"{row[6]:.2f}", color=ft.colors.BLUE, size=20)) #payment_amount
+                        ft.DataCell(ft.Text(row[1], color=ft.Colors.BLUE, size=20)), #order_id
+                        ft.DataCell(ft.Text(row[2], color=ft.Colors.BLUE, size=20)), #order_date
+                        ft.DataCell(ft.Text(row[3], color=ft.Colors.BLUE, size=20)), #client_name
+                        ft.DataCell(ft.Text(row[4], color=ft.Colors.BLUE, size=20)), #work_status
+                        ft.DataCell(ft.Text(row[5], color=ft.Colors.BLUE, size=20)), #payment_status
+                        ft.DataCell(ft.Text(f"{row[6]:.2f}", color=ft.Colors.BLUE, size=20)) #payment_amount
                     ]
                 )
             )
         page.update()
     
     search_button = ft.ElevatedButton(
-        content=ft.Text("Поиск", size=20, color=ft.colors.WHITE),
+        content=ft.Text("Поиск", size=20, color=ft.Colors.WHITE),
         on_click=handle_search,
         width=200,
-        style=ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
+        style=ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=ft.Colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
     )
 
     search_content = ft.Column(

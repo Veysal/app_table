@@ -34,16 +34,16 @@ def create_edit_tab(page):
         keyboard_type=ft.KeyboardType.NUMBER,
         autofocus=True,
         border=ft.InputBorder.OUTLINE,
-        border_color=ft.colors.BLUE,
-        focused_border_color=ft.colors.BLUE,
+        border_color=ft.Colors.BLUE,
+        focused_border_color=ft.Colors.BLUE,
         border_width=2,
-        text_style=ft.TextStyle(color=ft.colors.YELLOW)
+        text_style=ft.TextStyle(color=ft.Colors.YELLOW)
     )
 
     # Поле для отображения текущей даты заказа
     current_date_display = ft.Text(
         value="Текущая дата заказа",
-        color=ft.colors.YELLOW,
+        color=ft.Colors.YELLOW,
         size=18,
         weight=ft.FontWeight.BOLD    
     )
@@ -55,16 +55,16 @@ def create_edit_tab(page):
         width=200,
         text_align=ft.TextAlign.CENTER,
         border=ft.InputBorder.OUTLINE,
-        border_color=ft.colors.BLUE,
-        focused_border_color=ft.colors.YELLOW,
-        text_style=ft.TextStyle(color=ft.colors.YELLOW),
+        border_color=ft.Colors.BLUE,
+        focused_border_color=ft.Colors.YELLOW,
+        text_style=ft.TextStyle(color=ft.Colors.YELLOW),
         border_width=2    
     )
 
     # Поле для отображения текущего статуса оплаты
     current_payment_status_display = ft.Text(
         value="Текущий статус оплаты",
-        color=ft.colors.YELLOW,
+        color=ft.Colors.YELLOW,
         size=18,
         weight=ft.FontWeight.BOLD
     )
@@ -81,7 +81,7 @@ def create_edit_tab(page):
         ],
         border=ft.InputBorder.OUTLINE,
         value="Не оплачен",
-        text_style=ft.TextStyle(color=ft.colors.RED),
+        text_style=ft.TextStyle(color=ft.Colors.RED),
     )
 
     # Функция для поиска заказа по ID
@@ -89,8 +89,8 @@ def create_edit_tab(page):
         order_id = order_id_input.value.strip()
         if not order_id.isdigit():
             page.snack_bar = ft.SnackBar(
-                ft.Text("ID заказа должно быть числом", color=ft.colors.WHITE),
-                bgcolor=ft.colors.RED,
+                ft.Text("ID заказа должно быть числом", color=ft.Colors.WHITE),
+                bgcolor=ft.Colors.RED,
                 duration=2000,
             )
             page.snack_bar.open = True
@@ -99,8 +99,8 @@ def create_edit_tab(page):
         order_data = get_order_by_id(int(order_id))
         if not order_data:
             page.snack_bar = ft.SnackBar(
-                ft.Text("Заказ не найден", color=ft.colors.WHITE),
-                bgcolor=ft.colors.RED,
+                ft.Text("Заказ не найден", color=ft.Colors.WHITE),
+                bgcolor=ft.Colors.RED,
                 duration=2000,
             )
             page.snack_bar.open = True
@@ -118,8 +118,8 @@ def create_edit_tab(page):
         new_payment_status = edit_payment_status_dropdown.value
         if not new_date or not new_payment_status or not order_id:
             page.snack_bar = ft.SnackBar(
-                ft.Text("Новая дата не может быть пустой", color=ft.colors.WHITE),
-                bgcolor=ft.colors.RED,
+                ft.Text("Новая дата не может быть пустой", color=ft.Colors.WHITE),
+                bgcolor=ft.Colors.RED,
                 duration=2000,
             )
             page.snack_bar.open = True
@@ -133,7 +133,7 @@ def create_edit_tab(page):
         except ValueError:
             page.snack_bar = ft.SnackBar(
                 ft.Text("Новая дата должна быть в формате День.Месяц.Год", color=ft.colors.WHITE),
-                bgcolor=ft.colors.RED,
+                bgcolor=ft.Colors.RED,
                 duration=2000,
             )
             page.snack_bar.open = True
@@ -142,8 +142,8 @@ def create_edit_tab(page):
         
         update_order_in_db(int(order_id), new_date, new_payment_status)
         page.snack_bar = ft.SnackBar(
-            ft.Text("Изменения сохранены", color=ft.colors.WHITE),
-            bgcolor=ft.colors.GREEN,
+            ft.Text("Изменения сохранены", color=ft.Colors.WHITE),
+            bgcolor=ft.Colors.GREEN,
             duration=2000,
         )
         page.snack_bar.open = True
@@ -151,18 +151,18 @@ def create_edit_tab(page):
 
     # Кнопка для поиска заказа
     search_button = ft.ElevatedButton(
-        content=ft.Text("Поиск", size=20, color=ft.colors.WHITE),
+        content=ft.Text("Поиск", size=20, color=ft.Colors.WHITE),
         on_click=handle_search,
         width=200,
-        style=ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
+        style=ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=ft.Colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
     )
 
     # Кнопка для сохранения изменений
     save_button = ft.ElevatedButton(
-        content=ft.Text("Сохранить", size=20, color=ft.colors.WHITE),
+        content=ft.Text("Сохранить", size=20, color=ft.Colors.WHITE),
         on_click=handle_save,
         width=200,
-        style=ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
+        style=ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=ft.Colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
     )
 
     edit_content = ft.Column(
