@@ -1,27 +1,26 @@
 import sqlite3
 import flet as ft
+from datetime import datetime
 
 # Функция для обновления данных в БД
 def update_order_in_db(order_id, new_date,new_payment_status):
-    conn = sqlite3.connect('work_tracker.db')
-    cursor = conn.cursor()
-    cursor.execute("""
-        UPDATE orders
-        SET order_date = ?, payment_status = ?
-        WHERE order_id = ?
-    """, (new_date,new_payment_status, order_id)
-    )
-    conn.commit()
-    conn.close()
+    with sqlite3.connect('work_tracker.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE orders
+            SET order_date = ?, payment_status = ?
+            WHERE order_id = ?
+        """, (new_date,new_payment_status, order_id))
+        conn.commit()
 
 # Функция для поиска заказа по ID
 def get_order_by_id(order_id):
-    conn = sqlite3.connect('work_tracker.db')
-    cursor = conn.cursor()
-    cursor.execute("""SELECT * FROM orders WHERE order_id = ?""", (order_id,))
-    order = cursor.fetchone()
-    conn.close()
-    return order
+    with sqlite3.connect('work_tracker.db') as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("""SELECT * FROM orders WHERE order_id = ?""", (order_id,))
+        order = cursor.fetchone()
+        return order
 
 # Функция для создания вкладки Редактирования
 def create_edit_tab(page):
@@ -107,8 +106,8 @@ def create_edit_tab(page):
             page.update()
             return
         
-        current_date_display.value = f"Текущая дата заказа: {order_data[2]}"
-        current_payment_status_display.value = f"Текущий статус оплаты: {order_data[5]}"
+        current_date_display.value = f"Текущая дата заказа: {order_data['order_date']}"
+        current_payment_status_display.value = f"Текущий статус оплаты: {order_data['payment_status']}"
         page.update()
 
     # Функция длс сохранения изменений
@@ -127,12 +126,10 @@ def create_edit_tab(page):
             return
         
         try:
-            day, month, year = map(int, new_date.split("."))
-            if not (1 <= month <= 12 and 1 <= day <= 31):
-                raise ValueError
+            datetime.strptime(new_date, "%d.%m.%Y")
         except ValueError:
             page.snack_bar = ft.SnackBar(
-                ft.Text("Новая дата должна быть в формате День.Месяц.Год", color=ft.colors.WHITE),
+                ft.Text("Неверный формат даты. Используйте ДД.ММ.ГГГГ", color=ft.Colors.WHITE),
                 bgcolor=ft.Colors.RED,
                 duration=2000,
             )

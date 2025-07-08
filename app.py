@@ -2,6 +2,7 @@ import flet as ft
 import sqlite3
 import os
 import csv
+from datetime import datetime
 from edit_table import create_edit_tab
 
 
@@ -12,7 +13,7 @@ def init_db():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            order_id INEGER NOT NULL,
+            order_id INTEGER NOT NULL,
             order_date TEXT NOT NULL,
             client_name TEXT NOT NULL,
             work_status TEXT NOT NULL,
@@ -26,29 +27,28 @@ def init_db():
 
 # Функциф для добавления данных в базу данных
 def add_order_to_db(order_id, order_date, client_name, work_status, payment_status, payment_amount):
-    conn = sqlite3.connect("work_tracker.db")
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO orders (order_id, order_date, client_name, work_status, payment_status, payment_amount)
-        VALUES (?, ?, ?, ?, ?, ?)
-""",(order_id, order_date, client_name, work_status, payment_status, payment_amount))
-    conn.commit()
-    conn.close()
+    with sqlite3.connect("work_tracker.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO orders (order_id, order_date, client_name, work_status, payment_status, payment_amount)
+            VALUES (?, ?, ?, ?, ?, ?)
+    """,(order_id, order_date, client_name, work_status, payment_status, payment_amount))
+        conn.commit()
 
 def export_to_csv():
     try:
-        conn = sqlite3.connect("work_tracker.db")
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM orders")
-        rows = cursor.fetchall()
-        headers = ["ID заказа", "Дата заказа", "Имя клиента", "Статус работы", "Статус оплаты", "Сумма оплаты"]
-        file_path =("orders.csv")
-        with open(file_path, "w", newline="", encoding="utf-8") as file:
-            writer = csv.writer(file)
-            writer.writerow(headers)
-            writer.writerows(rows)
-        conn.close()
-        return file_path
+        with sqlite3.connect("work_tracker.db") as conn:
+            cursor = conn.cursor()
+            # Выбираем столбцы в нужном порядке, исключая первичный ключ `id`
+            cursor.execute("SELECT order_id, order_date, client_name, work_status, payment_status, payment_amount FROM orders")
+            rows = cursor.fetchall()
+            headers = ["ID заказа", "Дата заказа", "Имя клиента", "Статус работы", "Статус оплаты", "Сумма оплаты"]
+            file_path =("orders.csv")
+            with open(file_path, "w", newline="", encoding="utf-8") as file:
+                writer = csv.writer(file)
+                writer.writerow(headers)
+                writer.writerows(rows)
+            return file_path
     except Exception as ex:
         print(f"Ошибка при экспорте в CSV: {ex}")
         return None
@@ -57,57 +57,49 @@ def export_to_csv():
 # Агрегирующие функции
 def get_total_payment():
     """Получаем общую сумму всех оплат клиентов"""
-    conn = sqlite3.connect("work_tracker.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT SUM(payment_amount) FROM orders")
-    total = cursor.fetchone()[0] or 0
-    conn.close()
-    return total
+    with sqlite3.connect("work_tracker.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT SUM(payment_amount) FROM orders")
+        total = cursor.fetchone()[0]
+        return total or 0
 
 def get_average_payment():
     """Получаем среднюю сумму всех оплат клиентов"""
-    conn = sqlite3.connect("work_tracker.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT AVG(payment_amount) FROM orders")
-    average = cursor.fetchone()[0] or 0
-    conn.close()
-    return average
+    with sqlite3.connect("work_tracker.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT AVG(payment_amount) FROM orders")
+        average = cursor.fetchone()[0]
+        return average or 0
 
 def get_max_payment():
     """Получаем максимальную сумму оплаты клиента"""
-    conn = sqlite3.connect("work_tracker.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT MAX(payment_amount) FROM orders")
-    max_payment = cursor.fetchone()[0] or 0
-    if max_payment is None:
-        return []
-    cursor.execute("SELECT * FROM orders WHERE payment_amount = ?", (max_payment,))
-    rows = cursor.fetchall()
-    conn.close()
-    return rows
+    with sqlite3.connect("work_tracker.db") as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        # Используем подзапрос для эффективности
+        cursor.execute("SELECT * FROM orders WHERE payment_amount = (SELECT MAX(payment_amount) FROM orders)")
+        rows = cursor.fetchall()
+        return rows
 
 def get_min_payment():
     """Получаем минимальную сумму оплаты клиента"""
-    conn = sqlite3.connect("work_tracker.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT MIN(payment_amount) FROM orders")
-    min_payment = cursor.fetchone()[0] or 0
-    if min_payment is None:
-        return []
-    cursor.execute("SELECT * FROM orders WHERE payment_amount = ?", (min_payment,))
-    rows = cursor.fetchall()
-    conn.close()
-    return rows
+    with sqlite3.connect("work_tracker.db") as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM orders WHERE payment_amount = (SELECT MIN(payment_amount) FROM orders)")
+        rows = cursor.fetchall()
+        return rows
 
 
 # Функция для поиска по имени клиента
 def search_orders_by_client_name(client_name):
-    conn = sqlite3.connect("work_tracker.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM orders WHERE client_name LIKE ?", (client_name,))
-    rows = cursor.fetchall()
-    conn.close()
-    return rows
+    with sqlite3.connect("work_tracker.db") as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        # Добавляем % для поиска по частичному совпадению
+        cursor.execute("SELECT * FROM orders WHERE client_name LIKE ?", (f"%{client_name}%",))
+        rows = cursor.fetchall()
+        return rows
 
 
 
@@ -267,12 +259,10 @@ def main(page: ft.Page):
         
         # Проверка формата даты
         try:
-            day, month, year = map(int, order_date.split("."))
-            if not (1 <= month <= 12 and 1 <= day <= 31):
-                raise ValueError
+            datetime.strptime(order_date, "%d.%m.%Y")
         except ValueError:
             page.snack_bar = ft.SnackBar(
-                content=ft.Text("Дата должна быть в формате День.Месяц.Год", color=ft.Colors.WHITE),
+                content=ft.Text("Неверный формат даты. Используйте ДД.ММ.ГГГГ", color=ft.Colors.WHITE),
                 bgcolor=ft.Colors.RED,
                 duration=2000,
             )
@@ -364,7 +354,7 @@ def main(page: ft.Page):
         else:
             result_lines = []
             for row in max_payment:
-                result_lines.append(f"Клиент: {row[3]}\nСумма: {row[6]:.2f} руб.")
+                result_lines.append(f"Клиент: {row['client_name']}\nСумма: {row['payment_amount']:.2f} руб.")
             aggregation_result.value = "\n\n".join(result_lines)
         page.update()
 
@@ -375,7 +365,7 @@ def main(page: ft.Page):
         else:
             result_lines = []
             for row in min_payment:
-                result_lines.append(f"Клиент: {row[3]}\nСумма: {row[6]:.2f} руб.")
+                result_lines.append(f"Клиент: {row['client_name']}\nСумма: {row['payment_amount']:.2f} руб.")
             aggregation_result.value = "\n\n".join(result_lines)
         page.update()
 
@@ -537,12 +527,12 @@ def main(page: ft.Page):
             search_results_table.rows.append(
                 ft.DataRow(
                     cells=[
-                        ft.DataCell(ft.Text(row[1], color=ft.Colors.BLUE, size=20)), #order_id
-                        ft.DataCell(ft.Text(row[2], color=ft.Colors.BLUE, size=20)), #order_date
-                        ft.DataCell(ft.Text(row[3], color=ft.Colors.BLUE, size=20)), #client_name
-                        ft.DataCell(ft.Text(row[4], color=ft.Colors.BLUE, size=20)), #work_status
-                        ft.DataCell(ft.Text(row[5], color=ft.Colors.BLUE, size=20)), #payment_status
-                        ft.DataCell(ft.Text(f"{row[6]:.2f}", color=ft.Colors.BLUE, size=20)) #payment_amount
+                        ft.DataCell(ft.Text(row["order_id"], color=ft.Colors.BLUE, size=20)),
+                        ft.DataCell(ft.Text(row["order_date"], color=ft.Colors.BLUE, size=20)),
+                        ft.DataCell(ft.Text(row["client_name"], color=ft.Colors.BLUE, size=20)),
+                        ft.DataCell(ft.Text(row["work_status"], color=ft.Colors.BLUE, size=20)),
+                        ft.DataCell(ft.Text(row["payment_status"], color=ft.Colors.BLUE, size=20)),
+                        ft.DataCell(ft.Text(f"{row['payment_amount']:.2f}", color=ft.Colors.BLUE, size=20))
                     ]
                 )
             )
