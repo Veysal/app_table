@@ -35,6 +35,7 @@ def add_order_to_db(order_id, order_date, client_name, work_status, payment_stat
     """,(order_id, order_date, client_name, work_status, payment_status, payment_amount))
         conn.commit()
 
+# Экспортируем данные из БД в csv файл
 def export_to_csv():
     try:
         with sqlite3.connect("work_tracker.db") as conn:
