@@ -1,10 +1,10 @@
 import flet as ft
 from datetime import datetime
-from database import update_order_in_db, get_order_by_id
+from database import update_order_in_db, get_order_by_id, delete_order_from_db
 
 
 # Функция для создания вкладки Редактирования
-def create_edit_tab(page):
+def create_edit_tab(page, on_data_changed):
     # Поле для ввода ID заказа
     order_id_input = ft.TextField(
         label="ID заказа для поиска",
@@ -73,6 +73,54 @@ def create_edit_tab(page):
         page.update()
 
     edit_payment_status_dropdown.on_change = update_payment_status_color
+
+    # --- Диалог подтверждения удаления ---
+    def close_delete_dialog(e):
+        delete_dialog.open = False
+        page.update()
+
+    def handle_delete_confirm(e):
+        order_id = order_id_input.value.strip()
+        close_delete_dialog(e)
+
+        if not order_id.isdigit():
+            return
+
+        delete_order_from_db(int(order_id))
+        page.snack_bar = ft.SnackBar(
+            ft.Text(f"Заказ с ID {order_id} удален", color=ft.Colors.WHITE),
+            bgcolor=ft.Colors.GREEN,
+            duration=2000,
+        )
+        page.snack_bar.open = True
+
+        # Сбрасываем форму
+        order_id_input.value = ""
+        edit_form.visible = False
+        order_id_input.focus()
+
+        # Обновляем основную таблицу
+        on_data_changed()
+        page.update()
+
+    delete_dialog = ft.AlertDialog(
+        modal=True,
+        title=ft.Text("Подтверждение удаления"),
+        content=ft.Text("Вы уверены, что хотите удалить этот заказ? Это действие необратимо."),
+        actions=[
+            ft.TextButton("Да, удалить", on_click=handle_delete_confirm, style=ft.ButtonStyle(color=ft.Colors.RED)),
+            ft.TextButton("Нет", on_click=close_delete_dialog),
+        ],
+        actions_alignment=ft.MainAxisAlignment.END,
+    )
+
+    # Добавляем диалог в оверлей страницы. Это более надежный способ,
+    # чем использование page.dialog, особенно в сложных интерфейсах с вкладками.
+    page.overlay.append(delete_dialog)
+
+    def open_delete_dialog(e):
+        delete_dialog.open = True
+        page.update()
 
     # Функция для поиска заказа по ID
     def handle_search(e):
@@ -152,6 +200,10 @@ def create_edit_tab(page):
         edit_payment_status_dropdown.value = "Не оплачено"
         update_payment_status_color(None)
         edit_form.visible = False
+
+        # Обновляем основную таблицу
+        on_data_changed()
+
         order_id_input.focus()
         page.update()
 
@@ -159,8 +211,16 @@ def create_edit_tab(page):
     save_button = ft.ElevatedButton(
         content=ft.Text("Сохранить", size=20, color=ft.Colors.WHITE),
         on_click=handle_save,
-        width=300,
+        width=145,
         style=ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=ft.Colors.GREEN, shape=ft.RoundedRectangleBorder(radius=7)),
+    )
+
+    # Кнопка для удаления заказа
+    delete_button = ft.ElevatedButton(
+        content=ft.Text("Удалить", size=20, color=ft.Colors.WHITE),
+        on_click=open_delete_dialog,
+        width=145,
+        style=ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=ft.Colors.RED, shape=ft.RoundedRectangleBorder(radius=7)),
     )
 
     # Контейнер для формы редактирования, изначально скрыт
@@ -173,7 +233,11 @@ def create_edit_tab(page):
             current_payment_status_display,
             edit_payment_status_dropdown,
             ft.Container(height=20),
-            save_button,
+            ft.Row(
+                [save_button, delete_button],
+                alignment=ft.MainAxisAlignment.CENTER,
+                spacing=10,
+            ),
         ],
         spacing=10,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,

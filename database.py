@@ -52,6 +52,16 @@ def export_to_csv():
         print(f"Ошибка при экспорте в CSV: {ex}")
         return None
 
+# Функция для получения всех заказов
+def get_all_orders():
+    with sqlite3.connect(DB_NAME) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        # Сортируем по ID, чтобы новые записи были в конце
+        cursor.execute("SELECT * FROM orders ORDER BY id")
+        rows = cursor.fetchall()
+        return rows
+
 # Агрегирующие функции
 def get_total_payment():
     """Получаем общую сумму всех оплат клиентов"""
@@ -107,6 +117,13 @@ def update_order_in_db(order_id, new_date,new_payment_status):
             SET order_date = ?, payment_status = ?
             WHERE order_id = ?
         """, (new_date,new_payment_status, order_id))
+        conn.commit()
+
+# Функция для удаления заказа из БД
+def delete_order_from_db(order_id):
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM orders WHERE order_id = ?", (order_id,))
         conn.commit()
 
 # Функция для поиска заказа по ID

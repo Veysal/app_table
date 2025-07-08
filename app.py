@@ -11,6 +11,7 @@ from database import (
     get_max_payment,
     get_min_payment,
     search_orders_by_client_name,
+    get_all_orders,
 )
 
 # Основное приложение
@@ -23,7 +24,6 @@ def main(page: ft.Page):
     # Инициализация базы данных
     init_db()
 
-    #Создание таблицы для отображения данных
     data_table = ft.DataTable(
         columns=[
             ft.DataColumn(ft.Text("ID заказа", color=ft.Colors.YELLOW)),
@@ -35,6 +35,25 @@ def main(page: ft.Page):
         ],
         rows=[]
     )
+
+    # Функция для загрузки всех заказов в таблицу
+    def load_all_orders():
+        data_table.rows.clear()
+        all_orders = get_all_orders()
+        for order in all_orders:
+            data_table.rows.append(
+                ft.DataRow(
+                    cells=[
+                        ft.DataCell(ft.Text(str(order["order_id"]), color=ft.Colors.YELLOW)),
+                        ft.DataCell(ft.Text(order["order_date"], color=ft.Colors.YELLOW)),
+                        ft.DataCell(ft.Text(order["client_name"], color=ft.Colors.YELLOW)),
+                        ft.DataCell(ft.Text(order["work_status"], color=ft.Colors.YELLOW)),
+                        ft.DataCell(ft.Text(order["payment_status"], color=ft.Colors.YELLOW)),
+                        ft.DataCell(ft.Text(f"{order['payment_amount']:.2f}", color=ft.Colors.YELLOW))
+                    ]
+                )
+            )
+        page.update()
 
     # Поля для ввода данных
     order_id_input = ft.TextField(
@@ -194,26 +213,18 @@ def main(page: ft.Page):
         # Добавление данных в базу данных
         add_order_to_db(order_id, order_date, client_name, work_status, payment_status, payment_amount)
 
-        # Обновление таблицы
-        data_table.rows.append(
-            ft.DataRow(
-                cells=[
-                    ft.DataCell(ft.Text(order_id, color=ft.Colors.YELLOW)),
-                    ft.DataCell(ft.Text(order_date, color=ft.Colors.YELLOW)),
-                    ft.DataCell(ft.Text(client_name, color=ft.Colors.YELLOW)),
-                    ft.DataCell(ft.Text(work_status, color=ft.Colors.YELLOW)),
-                    ft.DataCell(ft.Text(payment_status, color=ft.Colors.YELLOW)),
-                    ft.DataCell(ft.Text(f"{payment_amount:.2f}", color=ft.Colors.YELLOW))
-                ]
-            )
-        )
-        page.update()
+        # Обновление таблицы и очистка полей
+        load_all_orders()
         order_id_input.value = ""
         order_date_input.value = ""
         client_name_input.value = ""
         work_status_dropdown.value = "В работе"
         payment_status_dropdown.value = "Не оплачено"
         payment_amount_input.value = ""
+        update_work_status_color(None)
+        update_payment_status_color(None)
+        order_id_input.focus()
+        page.update()
 
     # Кнопка для добавления данных
     add_button = ft.ElevatedButton(
@@ -493,13 +504,15 @@ def main(page: ft.Page):
             ft.Tab(text="Экспортировать", content=export_content),
             ft.Tab(text="Поиск", content=search_content),
             ft.Tab(text="Агрегация данных", content=aggregation_content),
-            ft.Tab(text="Редактирование", content=create_edit_tab(page)),
+            ft.Tab(text="Редактирование", content=create_edit_tab(page, load_all_orders)),
         ],
         expand=True,
     )
 
-    page.add(tabs)
+    # Первоначальная загрузка данных
+    load_all_orders()
 
+    page.add(tabs)
 
 
 if __name__ == "__main__":
