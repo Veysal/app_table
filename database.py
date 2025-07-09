@@ -53,12 +53,32 @@ def export_to_csv():
         return None
 
 # Функция для получения всех заказов
-def get_all_orders():
+def get_all_orders(sort_column="id", sort_ascending=True):
     with sqlite3.connect(DB_NAME) as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        # Сортируем по ID, чтобы новые записи были в конце
-        cursor.execute("SELECT * FROM orders ORDER BY id")
+        order = "ASC" if sort_ascending else "DESC"
+
+        # Карта для сопоставления имен столбцов из UI с именами в БД
+        column_map = {
+            "order_id": "order_id",
+            "order_date": "order_date",
+            "client_name": "client_name",
+            "work_status": "work_status",
+            "payment_status": "payment_status",
+            "payment_amount": "payment_amount",
+            "id": "id"  # Сортировка по умолчанию
+        }
+        db_column = column_map.get(sort_column, "id")
+
+        # Особая обработка для сортировки по дате в формате ДД.ММ.ГГГГ
+        if db_column == "order_date":
+            order_by_clause = f"ORDER BY substr(order_date, 7, 4) {order}, substr(order_date, 4, 2) {order}, substr(order_date, 1, 2) {order}"
+        else:
+            order_by_clause = f"ORDER BY {db_column} {order}"
+
+        query = f"SELECT * FROM orders {order_by_clause}"
+        cursor.execute(query)
         rows = cursor.fetchall()
         return rows
 

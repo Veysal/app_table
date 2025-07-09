@@ -25,14 +25,46 @@ def main(page: ft.Page):
     # Инициализация базы данных
     init_db()
 
+    # --- Сортировка таблицы ---
+    # Переменные для хранения состояния сортировки
+    sort_column_name = "id"
+    sort_ascending = True
+
+    def handle_sort(e: ft.DataColumnSortEvent):
+        nonlocal sort_column_name, sort_ascending
+
+        # Карта для сопоставления индекса колонки с именем в БД
+        column_map = {
+            0: "order_id",
+            1: "order_date",
+            2: "client_name",
+            3: "work_status",
+            4: "payment_status",
+            5: "payment_amount",
+        }
+        current_column_name = column_map.get(e.column_index)
+
+        # Обновляем состояние сортировки
+        if sort_column_name == current_column_name:
+            sort_ascending = not sort_ascending
+        else:
+            sort_column_name = current_column_name
+            sort_ascending = True
+
+        # Обновляем визуальные индикаторы сортировки в заголовках
+        for i, col in enumerate(data_table.columns):
+            col.sort_ascending = sort_ascending if i == e.column_index else None
+
+        load_all_orders()
+
     data_table = ft.DataTable(
         columns=[
-            ft.DataColumn(ft.Text("ID заказа", color=ft.Colors.YELLOW)),
-            ft.DataColumn(ft.Text("Дата заказа", color=ft.Colors.YELLOW)),
-            ft.DataColumn(ft.Text("Имя клиента", color=ft.Colors.YELLOW)),
-            ft.DataColumn(ft.Text("Статус работы", color=ft.Colors.YELLOW)),
-            ft.DataColumn(ft.Text("Статус оплаты", color=ft.Colors.YELLOW)),
-            ft.DataColumn(ft.Text("Сумма оплаты", color=ft.Colors.YELLOW)),
+            ft.DataColumn(ft.Text("ID заказа", color=ft.Colors.YELLOW), on_sort=handle_sort, numeric=True),
+            ft.DataColumn(ft.Text("Дата заказа", color=ft.Colors.YELLOW), on_sort=handle_sort),
+            ft.DataColumn(ft.Text("Имя клиента", color=ft.Colors.YELLOW), on_sort=handle_sort),
+            ft.DataColumn(ft.Text("Статус работы", color=ft.Colors.YELLOW), on_sort=handle_sort),
+            ft.DataColumn(ft.Text("Статус оплаты", color=ft.Colors.YELLOW), on_sort=handle_sort),
+            ft.DataColumn(ft.Text("Сумма оплаты", color=ft.Colors.YELLOW), on_sort=handle_sort, numeric=True),
         ],
         rows=[]
     )
@@ -40,7 +72,8 @@ def main(page: ft.Page):
     # Функция для загрузки всех заказов в таблицу
     def load_all_orders():
         data_table.rows.clear()
-        all_orders = get_all_orders()
+        # Передаем параметры сортировки в функцию получения данных
+        all_orders = get_all_orders(sort_column=sort_column_name, sort_ascending=sort_ascending)
         for order in all_orders:
             data_table.rows.append(
                 ft.DataRow(
