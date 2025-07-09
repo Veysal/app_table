@@ -7,12 +7,9 @@ from database import (
     init_db,
     add_order_to_db,
     export_to_csv,
-    get_total_payment,
-    get_average_payment,
-    get_max_payment,
-    get_min_payment,
     search_orders_by_client_name,
     get_all_orders,
+    get_aggregation_summary,
 )
 
 # Основное приложение
@@ -314,89 +311,6 @@ def main(page: ft.Page):
         ),
     )
 
-    # Результат агрегации
-    aggregation_result = ft.TextField(
-        label="Результат агрегации",
-        width=550,
-        read_only=True,
-        multiline=True,
-        min_lines=2,
-        max_lines=5,
-        text_style=ft.TextStyle(color=ft.Colors.YELLOW),
-        border=ft.InputBorder.OUTLINE,
-        border_color=ft.Colors.BLUE,
-        focused_border_color=ft.Colors.YELLOW,
-        border_width=2,
-        border_radius=10,
-    )
-
-    # Функции для кнопок агрегации
-    def total_handler(e):
-        total = get_total_payment()
-        aggregation_result.value = f"Общая сумма оплаты: {total:.2f} руб."
-        page.update()
-
-    def average_handler(e):
-        average = get_average_payment()
-        aggregation_result.value = f"Средняя сумма оплаты: {average:.2f} руб."
-        page.update()
-
-    def max_handler(e):
-        max_payment = get_max_payment()
-        if not max_payment:
-            aggregation_result.value = "Нет данных"
-        else:
-            result_lines = []
-            for row in max_payment:
-                result_lines.append(f"Клиент: {row['client_name']}\nСумма: {row['payment_amount']:.2f} руб.")
-            aggregation_result.value = "\n\n".join(result_lines)
-        page.update()
-
-    def min_handler(e):
-        min_payment = get_min_payment()
-        if not min_payment:
-            aggregation_result.value = "Нет данных"
-        else:
-            result_lines = []
-            for row in min_payment:
-                result_lines.append(f"Клиент: {row['client_name']}\nСумма: {row['payment_amount']:.2f} руб.")
-            aggregation_result.value = "\n\n".join(result_lines)
-        page.update()
-
-    
-
-
-    # Кнопки
-    total_button = ft.ElevatedButton(
-        text = "Сумма",
-        on_click=total_handler,
-        width=150,
-        style = ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=ft.Colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
-    )
-
-    average_button = ft.ElevatedButton(
-        text = "Среднее",
-        on_click=average_handler,
-        width=150,
-        style = ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=ft.Colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
-    )
-
-    max_button = ft.ElevatedButton(
-        text = "Максимальное",
-        on_click=max_handler,
-        width=150,
-        style = ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=ft.Colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7))
-    )
-
-    min_button = ft.ElevatedButton(
-        text = "Минимальное",
-        on_click=min_handler,
-        width=150,
-        style = ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=ft.Colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7))
-    )
-
-
-
     # Содержимое первой вкладки
     app_content = ft.Column(
         [
@@ -546,25 +460,81 @@ def main(page: ft.Page):
         expand=True
     )
 
-    # Содержимое вкладки "Агрегация данных"
+    # --- Содержимое вкладки "Агрегация данных" ---
+
+    # Вспомогательная функция для создания карточек со статистикой
+    def create_stat_card(title: str, value: str, color: str, width: int = 200):
+        return ft.Container(
+            content=ft.Column(
+                [
+                    ft.Text(value, size=28, weight=ft.FontWeight.BOLD, color=color, text_align=ft.TextAlign.CENTER),
+                    ft.Text(title, size=14, color=ft.Colors.GREY_500, text_align=ft.TextAlign.CENTER),
+                ],
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                spacing=5,
+            ),
+            padding=20,
+            border=ft.border.all(1, ft.Colors.BLUE_GREY_800),
+            border_radius=10,
+            width=width,
+            alignment=ft.alignment.center,
+        )
+
+    # Создаем элементы управления для карточек, но пока без значений
+    total_orders_card = create_stat_card("Всего заказов", "...", ft.Colors.WHITE)
+    total_payment_card = create_stat_card("Общая выручка", "...", ft.Colors.GREEN_ACCENT_400)
+    average_payment_card = create_stat_card("Средний чек", "...", ft.Colors.CYAN_ACCENT_400)
+    in_progress_card = create_stat_card("В работе", "...", ft.Colors.ORANGE)
+    completed_card = create_stat_card("Выполнено", "...", ft.Colors.GREEN)
+
+    def update_aggregation_data(e=None):
+        """Загружает и обновляет данные на карточках статистики."""
+        summary = get_aggregation_summary()
+        total_orders_card.content.controls[0].value = str(summary.get("total_orders", 0))
+        total_payment_card.content.controls[0].value = f"{summary.get('total_payment', 0):.2f} ₽"
+        average_payment_card.content.controls[0].value = f"{summary.get('average_payment', 0):.2f} ₽"
+        in_progress_card.content.controls[0].value = str(summary.get("in_progress_orders", 0))
+        completed_card.content.controls[0].value = str(summary.get("completed_orders", 0))
+        page.update()
+
+    refresh_button = ft.IconButton(
+        icon=ft.Icons.REFRESH,
+        on_click=update_aggregation_data,
+        tooltip="Обновить данные",
+        icon_color=ft.Colors.BLUE,
+    )
+
     aggregation_content = ft.Column(
         [
-            aggregation_result,
             ft.Row(
-                [total_button, average_button],
-                alignment=ft.MainAxisAlignment.CENTER,
+                [
+                    ft.Text("Ключевые показатели", size=24, weight=ft.FontWeight.BOLD, color=ft.Colors.YELLOW),
+                    refresh_button
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                width=640 # Ширина равна сумме карточек и отступов
             ),
             ft.Row(
-                [max_button, min_button],
+                [total_orders_card, total_payment_card, average_payment_card],
                 alignment=ft.MainAxisAlignment.CENTER,
-            )
+                spacing=20,
+            ),
+            ft.Row(
+                [in_progress_card, completed_card],
+                alignment=ft.MainAxisAlignment.CENTER,
+                spacing=20,
+            ),
         ],
-        alignment=ft.MainAxisAlignment.CENTER,
+        alignment=ft.MainAxisAlignment.START,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         spacing=20,
         expand=True
     )
 
+    def on_tab_change(e):
+        # Обновляем данные на вкладке "Агрегация", когда она становится активной
+        if e.control.selected_index == 3:
+            update_aggregation_data()
 
     tabs = ft.Tabs(
         selected_index=0,
@@ -576,6 +546,7 @@ def main(page: ft.Page):
             ft.Tab(text="Агрегация данных", content=aggregation_content),
             ft.Tab(text="Редактирование", content=create_edit_tab(page, load_all_orders)),
         ],
+        on_change=on_tab_change,
         expand=True,
     )
 

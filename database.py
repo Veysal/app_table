@@ -82,6 +82,27 @@ def get_all_orders(sort_column="id", sort_ascending=True):
         rows = cursor.fetchall()
         return rows
 
+def get_aggregation_summary():
+    """Получает сводку по нескольким агрегированным значениям за один запрос."""
+    with sqlite3.connect(DB_NAME) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        query = """
+        SELECT
+            COUNT(*) AS total_orders,
+            COALESCE(SUM(payment_amount), 0) AS total_payment,
+            COALESCE(AVG(payment_amount), 0) AS average_payment,
+            COALESCE(SUM(CASE WHEN work_status = 'В работе' THEN 1 ELSE 0 END), 0) AS in_progress_orders,
+            COALESCE(SUM(CASE WHEN work_status = 'Выполнено' THEN 1 ELSE 0 END), 0) AS completed_orders
+        FROM orders
+        """
+        cursor.execute(query)
+        row = cursor.fetchone()
+        # fetchone() для агрегирующего запроса без GROUP BY всегда вернет одну строку.
+        # Преобразуем в dict, чтобы обеспечить согласованный тип возвращаемого значения
+        # для уровня пользовательского интерфейса и избежать ошибок с None.
+        return dict(row)
+
 # Агрегирующие функции
 def get_total_payment():
     """Получаем общую сумму всех оплат клиентов"""
