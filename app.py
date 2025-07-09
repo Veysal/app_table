@@ -451,6 +451,30 @@ def main(page: ft.Page):
         expand=True
     )
 
+    # Функция поиска
+    def handle_search(e):
+        """Динамический поиск, срабатывающий при изменении текста в поле ввода."""
+        client_name = search_input.value.strip()
+        search_results_table.rows.clear()
+
+        if client_name:  # Выполняем поиск, только если поле не пустое
+            results = search_orders_by_client_name(client_name)
+            for row in results:
+                search_results_table.rows.append(
+                    ft.DataRow(
+                        cells=[
+                            # Исправлена ошибка: ID заказа нужно преобразовать в строку
+                            ft.DataCell(ft.Text(str(row["order_id"]), color=ft.Colors.BLUE, size=20)),
+                            ft.DataCell(ft.Text(row["order_date"], color=ft.Colors.BLUE, size=20)),
+                            ft.DataCell(ft.Text(row["client_name"], color=ft.Colors.BLUE, size=20)),
+                            ft.DataCell(ft.Text(row["work_status"], color=ft.Colors.BLUE, size=20)),
+                            ft.DataCell(ft.Text(row["payment_status"], color=ft.Colors.BLUE, size=20)),
+                            ft.DataCell(ft.Text(f"{row['payment_amount']:.2f}", color=ft.Colors.BLUE, size=20))
+                        ]
+                    )
+                )
+        page.update()
+
     # Содержмое третье вкладки
     search_input = ft.TextField(
         label="Поиск",
@@ -461,7 +485,8 @@ def main(page: ft.Page):
         border_color=ft.Colors.BLUE,
         focused_border_color=ft.Colors.YELLOW,
         border_width= 2,
-        border_radius=10
+        border_radius=10,
+        on_change=handle_search, # Добавляем обработчик on_change
     )
 
     search_results_table = ft.DataTable(
@@ -476,43 +501,10 @@ def main(page: ft.Page):
         rows=[]
     )
 
-    # Функция поиска
-    def handle_search(e):
-        client_name = search_input.value.strip()
-        if not client_name:
-            page.snack_bar = ft.SnackBar(ft.Text("Поле поиска не может быть пустым", color=ft.Colors.WHITE), bgcolor=ft.Colors.RED,duration=2000)
-            page.snack_bar.open = True
-            page.update()
-            return
-        
-        results = search_orders_by_client_name(client_name)
-        search_results_table.rows.clear()
-        for row in results:
-            search_results_table.rows.append(
-                ft.DataRow(
-                    cells=[
-                        ft.DataCell(ft.Text(row["order_id"], color=ft.Colors.BLUE, size=20)),
-                        ft.DataCell(ft.Text(row["order_date"], color=ft.Colors.BLUE, size=20)),
-                        ft.DataCell(ft.Text(row["client_name"], color=ft.Colors.BLUE, size=20)),
-                        ft.DataCell(ft.Text(row["work_status"], color=ft.Colors.BLUE, size=20)),
-                        ft.DataCell(ft.Text(row["payment_status"], color=ft.Colors.BLUE, size=20)),
-                        ft.DataCell(ft.Text(f"{row['payment_amount']:.2f}", color=ft.Colors.BLUE, size=20))
-                    ]
-                )
-            )
-        page.update()
-    
-    search_button = ft.ElevatedButton(
-        content=ft.Text("Поиск", size=20, color=ft.Colors.WHITE),
-        on_click=handle_search,
-        width=200,
-        style=ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=ft.Colors.BLUE, shape=ft.RoundedRectangleBorder(radius=7)),
-    )
-
     search_content = ft.Column(
         [
             search_input,
-            search_button,
+            # Кнопка "Поиск" больше не нужна, так как поиск стал динамическим
             ft.Column([search_results_table], scroll=ft.ScrollMode.ALWAYS)
         ],
         alignment=ft.MainAxisAlignment.CENTER,
