@@ -1,5 +1,6 @@
 import flet as ft
 import os
+import sqlite3
 from datetime import datetime
 from edit_table import create_edit_tab
 from database import (
@@ -67,17 +68,36 @@ def main(page: ft.Page):
         border_width= 2,
         border_radius=10
     )
-    
+
+    def handle_date_change(e):
+        order_date_input.value = date_picker.value.strftime("%d.%m.%Y")
+        page.update()
+
+    def open_date_picker(e):
+        date_picker.open = True
+        page.update()
+
+    date_picker = ft.DatePicker(
+        on_change=handle_date_change,
+        first_date=datetime(2020, 1, 1),
+        last_date=datetime(2030, 12, 31),
+        help_text="Выберите дату заказа"
+    )
+    page.overlay.append(date_picker)
+
     order_date_input = ft.TextField(
         label="Дата заказа",
         width=200,
-        keyboard_type=ft.KeyboardType.NUMBER,
+        hint_text="ДД.ММ.ГГГГ",
+        read_only=True, # Сделаем поле только для чтения, чтобы ввод был только через календарь
         text_style=ft.TextStyle(color=ft.Colors.YELLOW),
         border = ft.InputBorder.OUTLINE,
         border_color=ft.Colors.BLUE,
         focused_border_color=ft.Colors.YELLOW,
         border_width= 2,
-        border_radius=10
+        border_radius=10,
+        # Добавим иконку календаря для вызова DatePicker
+        suffix=ft.IconButton(ft.Icons.CALENDAR_MONTH, on_click=open_date_picker, icon_color=ft.Colors.BLUE),
     ) 
 
 
@@ -91,16 +111,19 @@ def main(page: ft.Page):
         border_width= 2,
         border_radius=10
     )
-
-
+    
+    # --- Рефакторинг: используем словари для цветов ---
+    WORK_STATUS_COLORS = {
+        "В работе": ft.Colors.ORANGE,
+        "Выполнено": ft.Colors.GREEN,
+        "Отменено": ft.Colors.RED,
+    }
+    
     #Установка цвета статуса работы для выпадающего списка
     def update_work_status_color(e):
-        if work_status_dropdown.value == "В работе":
-            work_status_dropdown.text_style = ft.TextStyle(color=ft.Colors.ORANGE)
-        elif work_status_dropdown.value == "Выполнено":
-            work_status_dropdown.text_style = ft.TextStyle(color=ft.Colors.GREEN)
-        elif work_status_dropdown.value == "Отменено":
-            work_status_dropdown.text_style = ft.TextStyle(color=ft.Colors.RED)            
+        status = work_status_dropdown.value
+        color = WORK_STATUS_COLORS.get(status, ft.Colors.WHITE)
+        work_status_dropdown.text_style = ft.TextStyle(color=color)
         page.update()
 
     # Выпадающий список
@@ -116,15 +139,18 @@ def main(page: ft.Page):
         on_change=update_work_status_color,
         text_style=ft.TextStyle(color=ft.Colors.ORANGE),
     )
-
+    
+    PAYMENT_STATUS_COLORS = {
+        "Оплачено": ft.Colors.GREEN,
+        "Не оплачено": ft.Colors.RED,
+        "Долг": ft.Colors.ORANGE,
+    }
+    
     #Установка цвета статуса оплаты для выпадающего списка
     def update_payment_status_color(e):
-        if payment_status_dropdown.value == "Оплачено":
-            payment_status_dropdown.text_style = ft.TextStyle(color=ft.Colors.GREEN)
-        elif payment_status_dropdown.value == "Не оплачено":
-            payment_status_dropdown.text_style = ft.TextStyle(color=ft.Colors.RED)
-        elif payment_status_dropdown.value == "Долг":
-            payment_status_dropdown.text_style = ft.TextStyle(color=ft.Colors.ORANGE)            
+        status = payment_status_dropdown.value
+        color = PAYMENT_STATUS_COLORS.get(status, ft.Colors.WHITE)
+        payment_status_dropdown.text_style = ft.TextStyle(color=color)
         page.update()
  
     # Выпадающий список - статус оплаты
@@ -210,8 +236,20 @@ def main(page: ft.Page):
             page.update()
             return
         
-        # Добавление данных в базу данных
-        add_order_to_db(order_id, order_date, client_name, work_status, payment_status, payment_amount)
+        # Добавление данных в базу данных с обработкой ошибки уникальности
+        try:
+            add_order_to_db(int(order_id), order_date, client_name, work_status, payment_status, payment_amount)
+        except sqlite3.IntegrityError:
+            page.snack_bar = ft.SnackBar(
+                content=ft.Text(f"Заказ с ID {order_id} уже существует!", color=ft.Colors.WHITE),
+                bgcolor=ft.Colors.RED,
+                duration=2000,
+            )
+            page.snack_bar.open = True
+            order_id_input.focus()
+            page.update()
+            return
+
 
         # Обновление таблицы и очистка полей
         load_all_orders()

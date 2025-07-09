@@ -11,7 +11,7 @@ def init_db():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            order_id INTEGER NOT NULL,
+            order_id INTEGER NOT NULL UNIQUE,
             order_date TEXT NOT NULL,
             client_name TEXT NOT NULL,
             work_status TEXT NOT NULL,
