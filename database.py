@@ -82,6 +82,37 @@ def get_all_orders(sort_column="id", sort_ascending=True):
         rows = cursor.fetchall()
         return rows
 
+def get_revenue_by_month():
+    """Получает данные о выручке, сгруппированные по месяцам."""
+    with sqlite3.connect(DB_NAME) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        query = """
+        SELECT
+            substr(order_date, 7, 4) || '-' || substr(order_date, 4, 2) as month,
+            SUM(payment_amount) as total_revenue
+        FROM orders
+        GROUP BY month
+        ORDER BY month
+        """
+        cursor.execute(query)
+        return cursor.fetchall()
+
+def get_status_distribution():
+    """Получает распределение заказов по статусам работы."""
+    with sqlite3.connect(DB_NAME) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        query = """
+        SELECT
+            work_status,
+            COUNT(*) as count
+        FROM orders
+        GROUP BY work_status
+        """
+        cursor.execute(query)
+        return cursor.fetchall()
+
 def get_aggregation_summary():
     """Получает сводку по нескольким агрегированным значениям за один запрос."""
     with sqlite3.connect(DB_NAME) as conn:

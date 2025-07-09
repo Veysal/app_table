@@ -3,6 +3,7 @@ import os
 import sqlite3
 from datetime import datetime
 from edit_table import create_edit_tab
+from analytics_tab import create_analytics_tab
 from database import (
     init_db,
     add_order_to_db,
@@ -531,10 +532,16 @@ def main(page: ft.Page):
         expand=True
     )
 
+    # --- Вкладка "Аналитика" ---
+    analytics_tab_content, update_analytics_chart = create_analytics_tab(page)
+
     def on_tab_change(e):
         # Обновляем данные на вкладке "Агрегация", когда она становится активной
         if e.control.selected_index == 3:
             update_aggregation_data()
+        # Обновляем данные на вкладке "Аналитика"
+        elif e.control.selected_index == 4:
+            update_analytics_chart()
 
     tabs = ft.Tabs(
         selected_index=0,
@@ -544,7 +551,8 @@ def main(page: ft.Page):
             ft.Tab(text="Экспортировать", content=export_content),
             ft.Tab(text="Поиск", content=search_content),
             ft.Tab(text="Агрегация данных", content=aggregation_content),
-            ft.Tab(text="Редактирование", content=create_edit_tab(page, load_all_orders)),
+            ft.Tab(text="Аналитика", content=analytics_tab_content),
+            ft.Tab(text="Редактирование", content=create_edit_tab(page, load_all_orders))
         ],
         on_change=on_tab_change,
         expand=True,
