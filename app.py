@@ -60,6 +60,7 @@ def main(page: ft.Page):
     order_id_input = ft.TextField(
         label="ID заказа",
         width=200,
+        height=50,
         keyboard_type=ft.KeyboardType.NUMBER,
         text_style=ft.TextStyle(color=ft.Colors.YELLOW),
         border = ft.InputBorder.OUTLINE,
@@ -88,6 +89,7 @@ def main(page: ft.Page):
     order_date_input = ft.TextField(
         label="Дата заказа",
         width=200,
+        height=50,
         hint_text="ДД.ММ.ГГГГ",
         read_only=True, # Сделаем поле только для чтения, чтобы ввод был только через календарь
         text_style=ft.TextStyle(color=ft.Colors.YELLOW),
@@ -104,6 +106,7 @@ def main(page: ft.Page):
     client_name_input = ft.TextField(
         label="Имя клиента",
         width=200,
+        height=50,
         text_style=ft.TextStyle(color=ft.Colors.YELLOW),
         border = ft.InputBorder.OUTLINE,
         border_color=ft.Colors.BLUE,
@@ -170,6 +173,7 @@ def main(page: ft.Page):
     payment_amount_input = ft.TextField(
         label="Сумма оплаты",
         width=200,
+        height=50,
         keyboard_type=ft.KeyboardType.NUMBER,
         text_style=ft.TextStyle(color=ft.Colors.YELLOW),
         border = ft.InputBorder.OUTLINE,
@@ -372,13 +376,16 @@ def main(page: ft.Page):
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
             ),
-            ft.Row(
-                [
-                    work_status_dropdown,
-                    payment_status_dropdown,
-                    add_button
-                ],
-                alignment=ft.MainAxisAlignment.CENTER,
+            ft.Container(
+                content=ft.Row(
+                    [
+                        work_status_dropdown,
+                        payment_status_dropdown,
+                        add_button
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                ),
+                margin=ft.margin.only(top=10)
             ),
             ft.Column([data_table], scroll=ft.ScrollMode.ALWAYS)
         ],
